@@ -1,12 +1,83 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import '../../App.css';
-import { Row, Col, Menu } from 'antd';
+import { Row, Col, Menu, Dropdown } from 'antd';
+import SignupModal from '../auth/signup'
+import LoginModal from '../auth/login'
+import { connect } from 'react-redux'
+
 import {FacebookOutlined, TwitterOutlined, GooglePlusOutlined, InstagramOutlined, SearchOutlined, MenuOutlined} from '@ant-design/icons'
 import {Link} from "react-router-dom";
+
+import {logOut} from '../../store/actions/authActions'
 const {SubMenu} = Menu
 
 
-function Header() {
+function Header(props) {
+  const {isAuth} = props.authReducer
+
+  const [modalSignupVisible, setModalSignupVisible] = useState(false)
+  const [modalLoginVisible, setModalLoginVisible] = useState(false)
+  const openLoginModal = () => {
+    setModalLoginVisible(true)
+  }
+
+  const closeLoginModal = () => {
+    setModalLoginVisible(false)
+  }
+
+  const openSignupModal = () => {
+    setModalSignupVisible(true)
+  }
+
+  const closeSignupModal = () => {
+    setModalSignupVisible(false)
+  }
+
+  const closeSignupOpenLogin = () => {
+    closeSignupModal()
+    openLoginModal()
+  }
+  
+  const closeLoginOpenSignup = () => {
+    closeLoginModal()
+    openSignupModal()
+  }
+
+
+
+  useEffect(() => {
+    if(props.authReducer.signUpSuccess) {
+      closeSignupOpenLogin()
+    }
+    if(props.authReducer.isAuth) {
+      closeLoginModal()
+    }
+
+  }, [props.authReducer.signUpSuccess, props.authReducer.isAuth])
+  
+
+  const unAuthMenu = (
+    <Menu>
+      <Menu.Item onClick={openLoginModal}>
+          Login
+      </Menu.Item>
+      <Menu.Item onClick={openSignupModal}>
+         Sign Up
+      </Menu.Item>
+    </Menu>
+  );
+  
+  const authMenu = (
+    <Menu>
+      <Menu.Item onClick={props.logOut}>
+          Logout
+      </Menu.Item>
+    </Menu>
+  );
+  
+  
+
+
   return (
     <header>
       <Row className="header">
@@ -21,7 +92,11 @@ function Header() {
         </Col>
         <Col span={6} className="header-social">
           <SearchOutlined />
-          <MenuOutlined />
+
+          <Dropdown overlay={isAuth ? authMenu : unAuthMenu} trigger={['click']}>
+            <MenuOutlined />
+          </Dropdown>
+         
         </Col>
       </Row>
       <div className="header-menu">
@@ -31,7 +106,7 @@ function Header() {
             <Link to="/">Home</Link>
         </Menu.Item>
         <Menu.Item key="2">
-        <Link to="/blog/id">Single post</Link>
+        <Link to="/profile">Profile</Link>
         </Menu.Item>
         <SubMenu
           title={
@@ -60,8 +135,23 @@ function Header() {
         </Menu.Item>
       </Menu>
       </div>
+
+      <SignupModal modalSignupVisible={modalSignupVisible} close={closeSignupModal} openLogin={closeSignupOpenLogin}/>
+      <LoginModal modalLoginVisible={modalLoginVisible} close={closeLoginModal} openSignup={closeLoginOpenSignup}/>
     </header>
+   
   );
 }
 
-export default Header;
+const mapStateToProps = state => ({
+  authReducer: state.authReducer
+})
+
+const mapDispatchToProps = {
+  logOut,
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header)

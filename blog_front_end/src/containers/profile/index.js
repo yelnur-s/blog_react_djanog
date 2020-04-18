@@ -4,18 +4,18 @@ import '../../App.css';
 import { Row, Col, Card, Button, Tag } from 'antd';
 import ModalBlog from '../../components/modal-blog'
 import Header from '../../components/header';
-import {getArticles} from '../../store/actions/articleActions'
+import {getMyArticles, deleteArticle} from '../../store/actions/articleActions'
 import {withRouter} from 'react-router-dom'
-import './main.css';
+import '../main/main.css';
 
 const { Meta } = Card;
 
 const onMount = props => () => {
-  props.getArticles()
+  props.getMyArticles()
 }
 
 
-function Main(props) {
+function Profile(props) {
   const [modalBlogVisible, setModalBlogVisible] = useState(false)
 
   const openModal = () => {
@@ -47,6 +47,7 @@ function Main(props) {
                 >
                   <Meta className="card-meta" title={item.title} description={item.description} />
                   {item.tags.map(tag => (<Tag>{tag.name}</Tag>))}
+                  <span onClick={() => props.deleteArticle(item.id)}>Delete</span>
                 </Card>
               </Col>
   ))
@@ -92,10 +93,11 @@ const mapStateToProps = state =>({
 })
 
 const mapDispatchToProps = {
-  getArticles,
+    getMyArticles,
+    deleteArticle,
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(Main))
+)(withRouter(Profile))

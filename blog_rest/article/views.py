@@ -8,6 +8,16 @@ from rest_framework import status
 
 from rest_framework.permissions import IsAdminUser, AllowAny, SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly
 
+
+
+class ProfileArticleViews(APIView):
+    serializer_class = ArticleSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None):
+        articles = Article.objects.filter(author=request.user.id).prefetch_related('tags')
+        serializer = self.serializer_class(articles, many=True)
+        return Response(serializer.data)
+
 class ArticleViews(APIView):
     serializer_class = ArticleSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -59,11 +69,20 @@ class ArticleViews(APIView):
 
 
 
-class DeleteArticleView(APIView):
+class DetailsArticleView(APIView):
     permission_classes = (IsAuthenticated,)
     def delete(self, request, pk, format=None):
         Article.objects.get(pk=pk).delete()
         return Response({"success": "1 article deleted"}, status=200)
+
+    def get(self, request, pk, format=None):
+        article = Article.objects.get(pk=pk)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+
+
+
+   
 
 
 class CategoryView(APIView):
