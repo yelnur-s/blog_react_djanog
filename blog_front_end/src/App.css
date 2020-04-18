@@ -1,0 +1,69 @@
+.App {
+  text-align: center;
+}
+
+.container { 
+   width: 90%;
+   margin: 0 auto;
+}
+
+.container-inner {
+  padding-top: 50px;
+}
+
+
+.header {
+  padding-top: 40px;
+}
+
+.header-social > span {
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header-social > span:last-child {
+  margin-right: 0;
+}
+
+.logo {
+  height: 150px;
+}
+
+.header-menu {
+  border-top: 1px solid #f0f0f0;
+  margin-top: 20px;
+}
+
+.bg-img {
+  width: 100%;
+  height: 400px;
+  background-image: url('/images/1.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+.bg-img--content {
+  position: absolute;
+  bottom: 0;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+}
+
+.bg-img--date {
+  margin-bottom: 20px;
+}
+
+.bg-img--title {
+  text-transform: uppercase;
+  font-size: 24px;
+}
+
+
+.blog-item {
+  width: calc(100% - 40px);
+  margin: 0 auto 40px;
+}
