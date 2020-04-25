@@ -3,7 +3,7 @@
 
 
 
-import {USER_LOGIN, USER_SIGNUP, USER_LOGOUT} from './types'
+import {USER_LOGIN, USER_SIGNUP, USER_LOGOUT, ERROR_HANDLE} from './types'
 import axios from 'axios'
 
 
@@ -22,20 +22,31 @@ export const signUp = (user) => dispatch =>{
         }, 1000)
 
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+        dispatch({
+            type: ERROR_HANDLE,
+            payload: err.response.data
+        })
+    })
 };
 
 
 export const logIn = (user) => dispatch =>{
     axios.post('/api/login', user)
      .then(res => {
+         console.log("here!", res.data)
          localStorage.setItem('access_token', res.data.access)
          dispatch({
              type: USER_LOGIN,
              payload: res.data.access
          })
      })
-     .catch(err => console.log(err))
+     .catch((err) => {
+        dispatch({
+            type: ERROR_HANDLE,
+            payload: err.response.data
+        })
+     })
  };
 
  export const logOut = () => dispatch =>{

@@ -3,9 +3,11 @@ import { Modal, Form, Input, Button } from 'antd';
 
 import {logIn} from '../../../store/actions/authActions'
 import { connect } from 'react-redux'
+import {errorReset} from '../../../store/actions/errorActions'
 
 function Login(props) {
   const {modalLoginVisible, close, openSignup} = props
+  const {error} = props.errorReducer
   const [visible, setVisible] = useState(modalLoginVisible)
   const [loading, setLoading] =  useState(false)
   const [formData, setFormData] = useState({
@@ -14,6 +16,9 @@ function Login(props) {
   })
   useEffect(() => {
     setVisible(modalLoginVisible)
+    if(!modalLoginVisible) {
+      props.errorReset()
+    }
   }, [modalLoginVisible])
 
 
@@ -57,30 +62,45 @@ function Login(props) {
     >
 
         <Form layout="vertical" name="nest-messages" onFinish={onFinish} validateMessages={validateMessages}>
-            <Form.Item name="username" label="Username" rules={[{ required: true }]}>
+            <Form.Item name="username" label="Username" 
+            rules={[{ required: true }]}
+            validateStatus={error.username ? `error` : ``}
+            help={error.username  ? error.username.join(' ') : ``}
+
+            >
                 <Input name="username" value={formData.username} onChange={handleChange}/>
             </Form.Item>
             <Form.Item
                 label="Password"
                 name="password"
                 rules={[{ required: true, message: 'Please input your password!' }]}
+                validateStatus={error.password ? `error` : ``}
+                help={error.password ? error.password.join(' ') : ``}
             >
                 <Input.Password name="password" value={formData.password} onChange={handleChange}/>
             </Form.Item>
         </Form>
+        {error.detail && <span style={{color: `red`}}> {error.detail} <br/></span>} 
+
         Or <a onClick={openSignup}>register now!</a>
     </Modal>
   );
 }
 
 
-const mapStateToProps = null
+const mapStateToProps = state => ({
+  errorReducer: state.errorReducer
+})
 
 const mapDispatchToProps = {
-  logIn
+  logIn,
+  errorReset
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Login)
+
+
+

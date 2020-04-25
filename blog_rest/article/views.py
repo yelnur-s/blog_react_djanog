@@ -5,7 +5,7 @@ from .serializers import ArticleSerializer, CategorySerializer, TagSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.db.models import Q
 from rest_framework.permissions import IsAdminUser, AllowAny, SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
@@ -100,6 +100,18 @@ class TagView(APIView):
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
 
+
+class ArticleFilterView(APIView):
+    serializer_class = ArticleSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, query, author, format=None):
+
+        if author == 0:
+            articles = Article.objects.filter(Q(title__icontains=query) | Q(description__icontains=query)).prefetch_related('tags')
+        else:
+            articles = Article.objects.filter(author=author).filter(Q(title__icontains=query) | Q(description__icontains=query)).prefetch_related('tags')
+        serializer = self.serializer_class(articles, many=True)
+        return Response(serializer.data)
 # Create your views here.
 
 # def articleList(request):

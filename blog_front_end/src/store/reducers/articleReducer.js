@@ -2,14 +2,15 @@
 
 
 
-import {DELETE_ARTICLE, GET_ARTICLE, ADD_ARTICLE, GET_ARTICLES, GET_CATEGORIES, GET_TAGS} from '../actions/types'
+import {DELETE_ARTICLE, GET_ARTICLE, ADD_ARTICLE, GET_ARTICLES, GET_CATEGORIES, GET_TAGS, RESET_ADD_MODAL_VISIBLE} from '../actions/types'
 
 
 const initialState = {
    articles: [],
    tags: [],
    categories: [],
-   article: {}
+   article: {},
+   closeAddModal: false
 }
 
 export default function (state=initialState, action){
@@ -38,6 +39,7 @@ export default function (state=initialState, action){
         case ADD_ARTICLE:
             return {
                 ...state,
+                closeAddModal: true,
                 articles: [...state.articles, action.payload]
             }
         case DELETE_ARTICLE:
@@ -47,6 +49,12 @@ export default function (state=initialState, action){
                 ...state,
                 articles: removeById(state.articles, action.payload)
             }
+        case RESET_ADD_MODAL_VISIBLE:
+            return {
+                ...state,
+                closeAddModal: false,
+            }
+
         default:
             return state;
     }

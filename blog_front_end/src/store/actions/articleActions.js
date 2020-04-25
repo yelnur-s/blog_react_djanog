@@ -1,5 +1,5 @@
 
-import {DELETE_ARTICLE, GET_ARTICLE, ADD_ARTICLE, GET_ARTICLES, GET_TAGS, GET_CATEGORIES} from './types'
+import {DELETE_ARTICLE, GET_ARTICLE, ADD_ARTICLE, GET_ARTICLES, GET_TAGS, GET_CATEGORIES, ERROR_HANDLE, RESET_ADD_MODAL_VISIBLE} from './types'
 import axios from 'axios'
 
 
@@ -49,7 +49,12 @@ export const getArticle = (id) => dispatch =>{
              payload: id
          })
      })
-     .catch(err => console.log(err))
+     .catch(err =>  {
+         dispatch({
+            type: ERROR_HANDLE,
+            payload: err.response.data
+        })
+    })
  };
 
 
@@ -95,6 +100,30 @@ export const getCatgories = () => dispatch =>{
      .then(res => {
          dispatch({
              type: ADD_ARTICLE,
+             payload: res.data
+         })
+
+         setTimeout(() => {
+            dispatch({
+                type: RESET_ADD_MODAL_VISIBLE,
+            })
+         },1000)
+     })
+     .catch(err => {
+        dispatch({
+            type: ERROR_HANDLE,
+            payload: err.response.data
+        })
+     })
+ };
+
+
+ export const filterArticles = (query, author) => dispatch =>{
+    axios.get(`/api/articles/filter/${query}/${author}`)
+     .then(res => {
+         console.log("Response: ", res, res.data)
+         dispatch({
+             type: GET_ARTICLES,
              payload: res.data
          })
      })

@@ -16,6 +16,16 @@
   padding-top: 40px;
 }
 
+.header-social {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-social > div {
+  margin-right: 10px;
+}
+
 .header-social > span {
   margin-right: 10px;
   display: inline-block;

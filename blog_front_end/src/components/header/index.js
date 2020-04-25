@@ -1,16 +1,20 @@
 import React, {useState, useEffect} from 'react';
 import '../../App.css';
-import { Row, Col, Menu, Dropdown } from 'antd';
+
+
+
+import { Row, Col, Menu, Dropdown, Input } from 'antd';
 import SignupModal from '../auth/signup'
 import LoginModal from '../auth/login'
 import { connect } from 'react-redux'
-
+import {withRouter} from 'react-router-dom'
 import {FacebookOutlined, TwitterOutlined, GooglePlusOutlined, InstagramOutlined, SearchOutlined, MenuOutlined} from '@ant-design/icons'
 import {Link} from "react-router-dom";
 
 import {logOut} from '../../store/actions/authActions'
+import {filterArticles, getArticles, getMyArticles} from '../../store/actions/articleActions'
 const {SubMenu} = Menu
-
+const {Search} = Input
 
 function Header(props) {
   const {isAuth} = props.authReducer
@@ -42,6 +46,18 @@ function Header(props) {
     closeLoginModal()
     openSignupModal()
   }
+
+  const onSearch = (value) => {
+    let p = 0
+    if(props.location.pathname ===`/profile` && props.authReducer.currentUserId) p = props.authReducer.currentUserId
+    
+    value.length === 0 && p === 0 ? props.getArticles() : 
+    value.length === 0  ? props.getMyArticles() : 
+    props.filterArticles(value, p)
+   
+  }
+
+  const onChange = (e) => onSearch(e.target.value)
 
 
 
@@ -91,8 +107,17 @@ function Header(props) {
           <img className="logo" src="/images/logo.png"/>
         </Col>
         <Col span={6} className="header-social">
-          <SearchOutlined />
-
+          
+          
+          {/* <SearchOutlined /> */}
+          <div >
+          <Search
+            placeholder="input search text"
+            onChange={onChange}
+            onSearch={onSearch}
+            style={{ width: 100 }}
+          />
+          </div>
           <Dropdown overlay={isAuth ? authMenu : unAuthMenu} trigger={['click']}>
             <MenuOutlined />
           </Dropdown>
@@ -149,9 +174,13 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   logOut,
+  filterArticles,
+  getArticles,
+  
+  getMyArticles
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Header)
+)(withRouter(Header))

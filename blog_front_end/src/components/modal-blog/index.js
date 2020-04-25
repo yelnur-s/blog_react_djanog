@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Modal, Form, Input, Select, Upload, message } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
+import {errorReset} from '../../store/actions/errorActions'
 
 import { connect } from 'react-redux'
 import {getCatgories, getTags, saveArticle} from '../../store/actions/articleActions'
@@ -33,10 +34,11 @@ const onMount = props => () => {
 
 function ModalBlog(props) {
   const {modalBlogVisible, close, articleReducer} = props
+  const {error} = props.errorReducer
   const [visible, setVisible] = useState(modalBlogVisible)
   const [imageUrl, setImageUrl] = useState(``)
   const [loading, setLoading] = useState(false)
-  const {tags, categories} = articleReducer
+  const {tags, categories, closeAddModal} = articleReducer
   const [formData, setFormData] = useState({
     title: ``,
     description: ``,
@@ -48,14 +50,24 @@ function ModalBlog(props) {
   console.log(tags, categories)
   useEffect(() => {
     setVisible(modalBlogVisible)
+
+    if(!modalBlogVisible) {
+      props.errorReset()
+    }
   }, [modalBlogVisible])
 
+
+  useEffect(() => {
+    if(closeAddModal) {
+      setVisible(false)
+    }
+  }, [closeAddModal])
 
   useEffect(onMount(props), [])
 
   const handleOk = () => {
     props.saveArticle(formData)
-    close();
+    // close();
   };
 
   const onFinish = values => {
@@ -118,18 +130,27 @@ function ModalBlog(props) {
     >
 
         <Form layout="vertical" name="nest-messages" onFinish={onFinish} validateMessages={validateMessages}>
-        <Form.Item name={['blog', 'title']} label="Title" rules={[{ required: true }]}>
+        <Form.Item name={['blog', 'title']} label="Title" rules={[{ required: true }]}
+        validateStatus={error.msg && error.msg.title ? `error` : ``}
+        help={error.msg && error.msg.title  ? error.msg.title.join(' ') : ``}
+        >
             <Input name="title" value={formData.title} onChange={handleChange}/>
         </Form.Item>
         
 
-        <Form.Item name={['blog', 'category']} label="Category">
+        <Form.Item name={['blog', 'category']} label="Category"
+        validateStatus={error.msg && error.msg.category ? `error` : ``}
+        help={error.msg && error.msg.category  ? error.msg.category.join(' ') : ``}
+        >
             <Select onChange={categoryChange} name="category">
               {categories.map(item => (<Option value={item.id}>{item.name}</Option>))}
             </Select>
         </Form.Item>
 
-        <Form.Item name={['blog', 'tags']} label="Tags">
+        <Form.Item name={['blog', 'tags']} label="Tags"
+        validateStatus={error.msg && error.msg.tags ? `error` : ``}
+        help={error.msg&&error.msg.tags  ? error.msg.tags.join(' ') : ``}
+        >
             <Select
                 mode="multiple"
                 style={{ width: '100%' }}
@@ -146,10 +167,16 @@ function ModalBlog(props) {
                 </Option>))}
             </Select>
         </Form.Item>
-        <Form.Item name={['blog', 'description']} label="Description">
+        <Form.Item name={['blog', 'description']} label="Description"
+        validateStatus={error.msg && error.msg.description ? `error` : ``}
+        help={error.msg && error.msg.description  ? error.msg.description.join(' ') : ``}
+        >
             <Input.TextArea name="description" value={formData.description} onChange={handleChange}/>
         </Form.Item>
-        <Form.Item>
+        <Form.Item
+           validateStatus={error.msg && error.msg.image ? `error` : ``}
+           help={error.msg&&error.msg.image  ? error.msg.image.join(' ') : ``}
+        >
             <Upload
                 name="image"
                 listType="picture-card"
@@ -163,19 +190,23 @@ function ModalBlog(props) {
             </Upload>
         </Form.Item>
         </Form>
-
+        {error.detail && <span style={{color: `red`}}> {error.detail} <br/></span>} 
     </Modal>
   );
 }
 
 const mapStateToProps = state =>({
-  articleReducer: state.articleReducer
+  articleReducer: state.articleReducer,
+  errorReducer: state.errorReducer
 })
+
+
 
 const mapDispatchToProps = {
   getCatgories,
   getTags,
-  saveArticle
+  saveArticle,
+  errorReset
 }
 
 export default connect(
